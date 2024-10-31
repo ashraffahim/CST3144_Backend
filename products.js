@@ -1,0 +1,47 @@
+let products = [
+    {
+        id: 1001,
+        picture: 'https://i.pinimg.com/736x/17/e1/51/17e151568275f7e63cf8524ee23879cb.jpg',
+        title: 'Cat & Dog',
+        description: 'Un chat et un cheval',
+        rating: 3,
+        price: 8950.00,
+        inventory: 6,
+    },
+    {
+        id: 1002,
+        picture: 'https://cdcssl.ibsrv.net/cimg/www.curatedcontent.smb/730x400_85/726/fennec-fox-626726.jpg',
+        title: 'Fox',
+        description: 'A random fox',
+        rating: 5,
+        price: 999.00,
+        inventory: 3,
+    },
+    {
+        id: 1003,
+        picture: 'https://m.media-amazon.com/images/I/71MwvIPsZ5L._AC_UF1000,1000_QL80_.jpg',
+        title: 'Yarn',
+        description: 'SUNYUM Cat Yarn Ball Toy with Bell, Rainbow Woolen Yarn Balls with Extended Tail Interactive Cat Exercise',
+        rating: 4,
+        price: 2.00,
+        inventory: 25,
+    },
+    {
+        id: 1004,
+        picture: 'https://www.petboutique.ae/cdn/shop/products/KC-Tuna-Mackerel_1200x.jpg?v=1596539843',
+        title: 'Cat food',
+        description: 'Kit Cat Wild Caught Tuna with Mackerel Canned Cat Food (400g)',
+        rating: 4,
+        price: 2.00,
+        inventory: 30,
+    },
+    {
+        id: 1005,
+        picture: 'https://m.media-amazon.com/images/I/71RcZ4E87FL._AC_UF894,1000_QL80_.jpg',
+        title: 'Kitty litter',
+        description: 'Meowgic Paws Cat Litter, Odor Control Clumping Bentonite Tofu Cat Litter, Low Tracking Lightweight',
+        rating: 1,
+        price: 20.00,
+        inventory: 50,
+    }
+];
