@@ -17,16 +17,20 @@
     <div id="app">
         <header class="flex">
             <h1 v-text="sitename" class="header-logo"></h1>
-            <nav>
-                <button v-show="currentPage === 'browse'" v-on:click="currentPage = 'checkout'">🛒 Checkout</button>
+            <div class="filter">
+                <input v-model.trim="filter">
+            </div>
+            <div class="actions">
+                <button v-show="currentPage === 'browse'" v-on:click="currentPage = 'checkout'"
+                    :disabled="order.products.length === 0">🛒 Checkout <span class="badge">{{ order.products.length
+                        }}</span></button>
                 <button v-show="currentPage === 'checkout'" v-on:click="currentPage = 'browse'">🌐 Browse</button>
-            </nav>
-            <div class="actions"></div>
+            </div>
         </header>
         <div id="products" v-show="currentPage === 'browse'" class="flex justify-center">
             <div class="max-w-xl flex flex-col gap-y-6 my-5">
                 <div v-for="product in sortedProducts" :key="product.id"
-                    class="flex gap-x-5 shadow-md hover:shadow-lg rounded-md">
+                    class="flex gap-x-5 shadow-md hover:shadow-lg rounded-md bg-white">
                     <div class="w-40 flex-grow-0 flex-shrink-0">
                         <img v-bind:src="product.picture" v-bind:alt="product.title"
                             class="w-40 rounded-s-md h-full object-cover">
@@ -59,24 +63,37 @@
             </div>
         </div>
         <div id="checkout" v-show="currentPage === 'checkout'">
-            <div v-if="cartTotalPrice > 0" class="flex flex-col lg:flex-row items-center lg:justify-center gap-x-5">
+            <div v-if="order.products.length > 0"
+                class="flex flex-col lg:flex-row items-center lg:items-start lg:justify-center gap-x-5 mt-10">
                 <div class="max-w-xl flex flex-col gap-y-6 my-5">
                     <div v-for="product in productsInCart" :key="product.id"
-                        class="flex gap-x-5 shadow-md hover:shadow-lg rounded-md">
+                        class="flex gap-x-5 shadow-md hover:shadow-lg rounded-md bg-white">
                         <div class="w-40 flex-grow-0 flex-shrink-0">
                             <img v-bind:src="product.picture" v-bind:alt="product.title"
                                 class="w-40 rounded-s-md h-full object-cover">
                         </div>
-                        <div class="p-2">
-                            <h3 v-text="product.title" class="m-0"></h3>
-                            <div v-text="product.description" class="text-gray-500 text-xs font-raleway"></div>
-                            <div>{{ cartProductCount(product.id) }} X AED {{ Number(product.price).toLocaleString() }}
+                        <div class="flex flex-col p-2 items-start justify-between">
+                            <div>
+                                <h3 v-text="product.title" class="m-0"></h3>
+                                <div v-text="product.description" class="text-gray-500 text-xs font-raleway"></div>
+                                <div>
+                                    {{ cartProductCount(product.id) }}
+                                    X AED {{ Number(product.price).toLocaleString() }}
+                                </div>
+                                <div class="text-gray-400">AED {{ (cartProductCount(product.id) *
+                                    Number(product.price)).toLocaleString() }}</div>
                             </div>
-                            <div class="text-gray-400">AED {{ (cartProductCount(product.id) * Number(product.price)).toLocaleString() }}</div>
+                            <div class="flex">
+                                <button v-on:click="decreaseProductQty(product)" class="px-2 rounded-s bg-gray-100" :disabled="cartProductCount(product.id) === 0">-</button>
+                                <button v-on:click="increaseProductQty(product)" class="px-2 rounded-e bg-gray-100" :disabled="product.inventory - cartProductCount(product.id) === 0">+</button>
+                                <button v-on:click="removeFromCart(product)"
+                                    class="btn-danger-muted text-xs ml-2">Remove</button>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="flex flex-col gap-y-3">
+                    <h3 class="text-3xl">Order details</h3>
                     <div class="flex gap-x-3">
                         <div class="input-field">
                             <label class="input-label-classic">First Name</label>
@@ -159,13 +176,15 @@
                     </div>
 
                     <div class="flex">
-                        <button v-on:click="submitForm" class="btn-classic w-full">Place Order</button>
+                        <button v-if="checkoutFormIsValid" v-on:click="submitForm" class="btn-classic w-full">Place
+                            Order</button>
+                        <button v-else class="btn-classic w-full" disabled>Place Order</button>
                     </div>
                 </div>
             </div>
             <div v-else class="flex justify-center items-center h-96">
                 <h1 class="text-4xl font-raleway">
-                    Empty cart ¯\_(ツ)_/¯   
+                    Empty cart ¯\_(ツ)_/¯
                 </h1>
             </div>
         </div>

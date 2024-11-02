@@ -3,6 +3,7 @@ const webstore = new Vue({
     data: {
         sitename: 'PetDepot',
         currentPage: 'browse',
+        filter: '',
         products: [],
         order: {
             sendGift: 'Send As A Gift',
@@ -29,6 +30,31 @@ const webstore = new Vue({
     methods: {
         addToCart: function(product) {
             this.order.products.push(product.id);
+        },
+        removeFromCart: function(product) {
+            const newCart = [];
+
+            this.order.products.forEach((productId, index) => {
+                if (productId !== product.id) newCart.push(productId);
+            });
+
+            this.order.products = newCart;
+        },
+        increaseProductQty: function(product) {
+            if (product.inventory - this.cartProductCount(product.id) === 0) {
+                alert('Out of stock!');
+                return;
+            }
+
+            this.order.products.push(product.id);
+        },
+        decreaseProductQty: function(product) {
+            if (this.cartProductCount(product.id) === 0) {
+                alert('Product is not in cart!');
+                return;
+            }
+            
+            this.order.products.splice(this.order.products.indexOf(product.id), 1);
         },
         submitForm: function() {
             alert('Form Submitted');
@@ -66,6 +92,13 @@ const webstore = new Vue({
             });
 
             return total;
+        },
+        checkoutFormIsValid() {
+            let valid = true;
+            ['firstName', 'lastName', 'address', 'city', 'state', 'zip'].forEach(field => {
+                if (this.order[field] === '') valid = false;
+            });
+            return valid;
         }
     }
 });
