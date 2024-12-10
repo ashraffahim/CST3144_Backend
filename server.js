@@ -59,7 +59,7 @@ app.post('/orders', async (request, response, next) => {
     });
 
     for (const key in productQtys) {
-        const { matchedCount, upsertedCount } = await request.db.collection('product').updateOne({ _id: new ObjectId(key), place: { "$gte": parseInt(productQtys[key]) } }, { $inc: { place: -1 * parseInt(productQtys[key]) } });
+        const { matchedCount } = await request.db.collection('product').updateOne({ _id: new ObjectId(key), place: { "$gte": parseInt(productQtys[key]) } }, { $inc: { place: -1 * parseInt(productQtys[key]) } });
 
         if (matchedCount === 0) {
             console.log('Activity is not available: ' + key);
@@ -100,18 +100,22 @@ app.put('/orders/:id', async (request, response, next) => {
     });
 
     Object.entries(order.products).forEach(async ([id, qty]) => {
-        const { productMatchedCount, productUpsertedCount } = await request.db.collection('product').updateOne({ _id: new ObjectId(id), place: { "$gte": (parseInt(qty) - (productQtys[id] ?? 0 )) } }, { $inc: { place: (parseInt(qty) - (productQtys[id] ?? 0 )) } });
+        const { matchedCount } = await request.db.collection('product').updateOne({ _id: new ObjectId(id), place: { $gte: (parseInt(qty) - (productQtys[id] ?? 0 )) } }, { $inc: { place: (parseInt(qty) - (productQtys[id] ?? 0 )) } });
 
-        if (productMatchedCount === 0) {
+        if (matchedCount === 0) {
             console.log('Activity is not available: ' + id);
 
             delete productQtys[id];
         }
     });
-    
-    const { orderMatchedCount, orderUpsertedCount } = await request.db.collection('order').updateOne({ _id: new ObjectId(request.params.id) }, { $set: { products: productQtys } });
 
-    if (orderMatchedCount > 0) {
+    if (Object.keys(productQtys).length === 0) {
+        return response.status(400).send({ message: 'Activities cannot be updated' });
+    }
+    
+    const { matchedCount } = await request.db.collection('order').updateOne({ _id: new ObjectId(request.params.id) }, { $set: { products: productQtys } });
+
+    if (matchedCount > 0) {
         response.send({ success: 1 }).status(200);
     } else {
         response.send({ success: 0 }).status(500);
@@ -119,7 +123,7 @@ app.put('/orders/:id', async (request, response, next) => {
 });
 
 app.delete('/orders/:id', async (request, response, next) => {
-    const { acknowledged, deletedCount } = await request.db.collection('order').deleteOne({ _id: new ObjectId(request.params.id) });
+    const { deletedCount } = await request.db.collection('order').deleteOne({ _id: new ObjectId(request.params.id) });
 
     if (deletedCount > 0) {
         response.send({ success: 1 }).status(200);
