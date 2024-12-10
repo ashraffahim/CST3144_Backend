@@ -123,6 +123,17 @@ app.put('/orders/:id', async (request, response, next) => {
 });
 
 app.delete('/orders/:id', async (request, response, next) => {
+
+    const order = await request.db.collection('order').findOne({ _id: new ObjectId(request.params.id) });
+
+    if (order === null) {
+        return response.status(404).send({ message: 'Order not found' });
+    }
+
+    Object.entries(order.products).forEach(async ([id, qty]) => {
+        const { matchedCount } = await request.db.collection('product').updateOne({ _id: new ObjectId(id) }, { $inc: { place: qty } });
+    });
+
     const { deletedCount } = await request.db.collection('order').deleteOne({ _id: new ObjectId(request.params.id) });
 
     if (deletedCount > 0) {
